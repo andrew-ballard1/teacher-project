@@ -33,7 +33,7 @@ const sortByOptions = [
   },
   {
     label: "Years experience (max)",
-    vale: "maxYearsExperience"
+    value: "maxYearsExperience"
   }
 ];
 
@@ -93,7 +93,13 @@ const TeacherCard = ({ teacher }) => {
 */
 
 export default class App extends React.Component {
-  state = { sortBy: "alphabeticalByLastName" };
+  state = { sortBy: "maxYearsExperience" };
+
+  handleSortBy = (option) => {
+    this.setState({sortBy: option.value})
+  }
+
+
   render() {
     const { sortBy } = this.state;
     return (
@@ -116,6 +122,7 @@ export default class App extends React.Component {
                   <Select
                     value={sortByOptions.find(({ value }) => value === sortBy)}
                     options={sortByOptions}
+                    onChange={this.handleSortBy}
                   />
                 </PanelSection>
                 <PanelSection>
@@ -141,8 +148,30 @@ export default class App extends React.Component {
               </PanelContainer>
             </PanelSideColumn>
             <PanelMainColumn>
-              {teacherData.map((teacher) => (
-                <TeacherCard teacher={teacher} />
+              {teacherData.sort((a, b) => {
+                // filters
+                // yearsExp
+                // alphabetical (last)
+                if(sortBy === "maxYearsExperience"){
+                  let maxYrsA = a.subjects.reduce((acc, curr) => {
+                    return {yrsExp: acc.yrsExp + curr.yrsExp}
+                  }, {yrsExp: 0})
+                  let maxYrsB = b.subjects.reduce((acc, curr) => {
+                    return {yrsExp: acc.yrsExp + curr.yrsExp}
+                  }, {yrsExp: 0})
+                  
+                  return maxYrsB.yrsExp - maxYrsA.yrsExp
+                } else if(sortBy === "alphabeticalByLastName"){
+                  if(a.lastName.toLowerCase() < b.lastName.toLowerCase()){
+                    return -1
+                  }
+                  if(a.lastName.toLowerCase() > b.lastName.toLowerCase()) {
+                    return 1
+                  }
+                  return 0
+                }
+              }).map((teacher, index) => (
+                <TeacherCard key={index} teacher={teacher} />
               ))}
               <button
                 onClick={() => {
