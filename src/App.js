@@ -250,18 +250,20 @@ export default class App extends React.Component {
               </PanelContainer>
             </PanelSideColumn>
             <PanelMainColumn>
-              {this.buildTeacherList()}
-              <button
-                onClick={() => {
-                  scroll.scrollToTop({
-                    duration: 1600,
-                    delay: 100,
-                    smooth: true
-                  });
-                }}
-              >
-                Scroll To Top
-              </button>
+              {teacherList}
+              {showScrollToTop && 
+                (<button
+                  onClick={() => {
+                    scroll.scrollToTop({
+                      duration: 1600,
+                      delay: 100,
+                      smooth: true
+                    });
+                  }}
+                >
+                  Scroll To Top
+                </button>)
+              }
             </PanelMainColumn>
           </PanelColumnsContainer>
         </PageContentContainer>
