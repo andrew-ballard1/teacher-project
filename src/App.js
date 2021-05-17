@@ -18,10 +18,11 @@ import {
 import Select from "react-select";
 import teacherData from "./teacherData";
 import { animateScroll as scroll } from "react-scroll";
+import ZipCodes from 'zipcodes';
 
 /*
 |--------------------------------------------------------------------------
-| Variables
+| Variables / helpers
 |--------------------------------------------------------------------------
 */
 
@@ -36,6 +37,13 @@ const sortByOptions = [
   }
 ];
 
+const getCityState = (zip) => {
+  let locale = ZipCodes.lookup(zip);
+  let {city, state} = locale;
+
+  return {city, state};
+}
+
 /*
 |--------------------------------------------------------------------------
 | Stateless Components
@@ -44,6 +52,8 @@ const sortByOptions = [
 
 const TeacherCard = ({ teacher }) => {
   const { firstName, lastName, zipCode, subjects, gradeLevelsTaught } = teacher;
+  const { city, state } = getCityState(zipCode);
+
   return (
     <PanelContainer>
       <PanelSection>
@@ -51,7 +61,7 @@ const TeacherCard = ({ teacher }) => {
           {firstName} {lastName}
         </PanelSectionTitle>
       </PanelSection>
-      <PanelSection>{zipCode}</PanelSection>
+      <PanelSection>{city}, {state}</PanelSection>
       <PanelSection>
         <PanelSectionHeader>Grades Levels</PanelSectionHeader>
         <div style={{ marginBottom: "16px" }}>
