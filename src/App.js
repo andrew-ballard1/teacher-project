@@ -236,6 +236,7 @@ export default class App extends React.Component {
                     which now that I think about it, was probably a waste of time.
                     I could have broken up these checkboxes into two separate categories. 
                     There's probably no case where we want different filters with 3-5 categories each. 
+                    Maybe on another filter, like school districts taught in */}
                   </div>
                   <div>
                     <input type="checkbox" onChange={event => this.setGradeFilter({levels: ['middle'], value: !middle})}/>
