@@ -71,9 +71,11 @@ const TeacherCard = ({ teacher }) => {
         </div>
         <div>
           <PanelSectionHeader>Subjects</PanelSectionHeader>
-          {subjects.map(({ label, yrsExp }) => {
+          {subjects.sort((a, b) => {
+            return b.yrsExp - a.yrsExp
+          }).map(({ label, yrsExp }, index) => {
             return (
-              <div>
+              <div key={index}>
                 {label}, {yrsExp} years exp.
               </div>
             );
