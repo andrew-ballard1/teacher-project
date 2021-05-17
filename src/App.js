@@ -93,7 +93,7 @@ const TeacherCard = ({ teacher }) => {
 */
 
 export default class App extends React.Component {
-  state = { sortBy: "alphabeticalByLastName", searchBy: "" };
+  state = { sortBy: "alphabeticalByLastName", searchBy: "", level:{nursery: false, lower: false, middle: false, upper: false} };
 
   handleSortBy = (option) => {
     this.setState({sortBy: option.value})
@@ -104,7 +104,16 @@ export default class App extends React.Component {
   }
 
   buildTeacherList = () => {
-    const { sortBy, searchBy } = this.state
+    const { sortBy, searchBy, level, level: {nursery, lower, middle, upper} } = this.state
+
+    const selectedFilters = Object.entries(level).filter(([filter, value]) => {
+      if(value){
+        return true
+      }
+    }).map(([key, val]) => {
+      return key
+    })
+
     const teachers = teacherData.sort((a, b) => {
       // filters
       // yearsExp
@@ -149,6 +158,18 @@ export default class App extends React.Component {
         returnVal = true
       }
 
+      // if any filters are selected
+      if(returnVal && Object.values(level).some((item) => item == true)){
+        returnVal = false
+
+        return selectedFilters.every((item) => {
+          if(teacher.gradeLevelsTaught[item]){
+            return true
+          }
+          return false
+        })
+      }
+
       return returnVal
     }).map((teacher, index) => (
       <TeacherCard key={index} teacher={teacher} />
@@ -157,8 +178,26 @@ export default class App extends React.Component {
     return teachers
   }
 
+  setGradeFilter = async ({levels = [], value}) => {
+    let mutableState = Object.assign({}, this.state)
+    for(var item of levels){
+      let change = {
+        level: {
+          ...this.state.level,
+          [item]: value
+        }
+      }
+      let newState = Object.assign(mutableState, change)
+      await this.setState({...newState})
+    }
+  }
+
   render() {
-    const { sortBy } = this.state;
+    const { sortBy, level: {lower, middle, upper} } = this.state;
+
+    const teacherList = this.buildTeacherList()
+    const showScrollToTop = teacherList.length >= 2
+
     return (
       <PageContainer>
         <PageContentContainer>
@@ -190,15 +229,20 @@ export default class App extends React.Component {
                     Grade Levels
                   </label>
                   <div>
-                    <input type="checkbox" />
+                  <input type="checkbox" onChange={event => this.setGradeFilter({levels: ['nursery', 'lower'], value: !lower})}/>
                     <label>Nursery & Lower School</label>
+                    {/* at some point this can be expanded. 
+                    The whole 'setGradeFilter' function can handle multiple values - 
+                    which now that I think about it, was probably a waste of time.
+                    I could have broken up these checkboxes into two separate categories. 
+                    There's probably no case where we want different filters with 3-5 categories each. 
                   </div>
                   <div>
-                    <input type="checkbox" />
+                    <input type="checkbox" onChange={event => this.setGradeFilter({levels: ['middle'], value: !middle})}/>
                     <label>Middle-School</label>
                   </div>
                   <div>
-                    <input type="checkbox" />
+                    <input type="checkbox" onChange={event => this.setGradeFilter({levels: ['upper'], value: !upper})}/>
                     <label>High-School</label>
                   </div>
                 </PanelSection>
