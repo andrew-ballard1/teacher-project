@@ -93,12 +93,69 @@ const TeacherCard = ({ teacher }) => {
 */
 
 export default class App extends React.Component {
-  state = { sortBy: "maxYearsExperience" };
+  state = { sortBy: "alphabeticalByLastName", searchBy: "" };
 
   handleSortBy = (option) => {
     this.setState({sortBy: option.value})
   }
 
+  handleTextSearch = (text) => {
+    this.setState({searchBy: text})
+  }
+
+  buildTeacherList = () => {
+    const { sortBy, searchBy } = this.state
+    const teachers = teacherData.sort((a, b) => {
+      // filters
+      // yearsExp
+      // alphabetical (last)
+      if(sortBy === "maxYearsExperience"){
+        let maxYrsA = a.subjects.reduce((acc, curr) => {
+          return {yrsExp: acc.yrsExp + curr.yrsExp}
+        }, {yrsExp: 0})
+        let maxYrsB = b.subjects.reduce((acc, curr) => {
+          return {yrsExp: acc.yrsExp + curr.yrsExp}
+        }, {yrsExp: 0})
+        
+        return maxYrsB.yrsExp - maxYrsA.yrsExp
+      } else if(sortBy === "alphabeticalByLastName"){
+        if(a.lastName.toLowerCase() < b.lastName.toLowerCase()){
+          return -1
+        }
+        if(a.lastName.toLowerCase() > b.lastName.toLowerCase()) {
+          return 1
+        }
+        return 0
+      }
+    }).filter((teacher) => {
+      // handle checkbox, state, text search here
+      let returnVal = true
+      if(searchBy !== ""){
+        returnVal = false
+        let teacherName = `${teacher.firstName} ${teacher.lastName}`
+        if(teacherName.toLowerCase().indexOf(searchBy.toLowerCase().trim()) !== -1){
+          returnVal = true
+        }
+        if(teacher.subjects.filter((subject) => {
+          if(subject.label.toLowerCase().indexOf(searchBy.toLowerCase().trim()) !== -1){
+            return true
+          } else {
+            return false
+          }
+        }).length > 0){
+          returnVal = true
+        }
+      } else {
+        returnVal = true
+      }
+
+      return returnVal
+    }).map((teacher, index) => (
+      <TeacherCard key={index} teacher={teacher} />
+    ))
+
+    return teachers
+  }
 
   render() {
     const { sortBy } = this.state;
@@ -113,7 +170,7 @@ export default class App extends React.Component {
                   <PanelSectionTitle>Text Search</PanelSectionTitle>
                 </PanelSection>
                 <PanelSection>
-                  <StyledTextInput />
+                  <StyledTextInput onKeyUp={(event) => this.handleTextSearch(event.target.value)}/>
                 </PanelSection>
                 <PanelSection>
                   <PanelSectionTitle>Sort By</PanelSectionTitle>
@@ -148,31 +205,7 @@ export default class App extends React.Component {
               </PanelContainer>
             </PanelSideColumn>
             <PanelMainColumn>
-              {teacherData.sort((a, b) => {
-                // filters
-                // yearsExp
-                // alphabetical (last)
-                if(sortBy === "maxYearsExperience"){
-                  let maxYrsA = a.subjects.reduce((acc, curr) => {
-                    return {yrsExp: acc.yrsExp + curr.yrsExp}
-                  }, {yrsExp: 0})
-                  let maxYrsB = b.subjects.reduce((acc, curr) => {
-                    return {yrsExp: acc.yrsExp + curr.yrsExp}
-                  }, {yrsExp: 0})
-                  
-                  return maxYrsB.yrsExp - maxYrsA.yrsExp
-                } else if(sortBy === "alphabeticalByLastName"){
-                  if(a.lastName.toLowerCase() < b.lastName.toLowerCase()){
-                    return -1
-                  }
-                  if(a.lastName.toLowerCase() > b.lastName.toLowerCase()) {
-                    return 1
-                  }
-                  return 0
-                }
-              }).map((teacher, index) => (
-                <TeacherCard key={index} teacher={teacher} />
-              ))}
+              {this.buildTeacherList()}
               <button
                 onClick={() => {
                   scroll.scrollToTop({
