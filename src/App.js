@@ -33,7 +33,7 @@ const sortByOptions = [
   },
   {
     label: "Years experience (max)",
-    vale: "maxYearsExperience"
+    value: "maxYearsExperience"
   }
 ];
 
@@ -91,7 +91,7 @@ const TeacherCard = ({ teacher }) => {
 */
 
 export default class App extends React.Component {
-  state = { sortBy: "alphabeticalByLastName" };
+  state = { sortBy: "maxYearsExperience" };
   render() {
     const { sortBy } = this.state;
     return (
